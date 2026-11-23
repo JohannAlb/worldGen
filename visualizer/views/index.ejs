@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>World Visualizer</title>
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <header>
+      <h1>World Visualizer</h1>
+      <p class="world-name" id="worldName">No world yet</p>
+    </header>
+
+    <form id="worldForm" class="panel">
+      <h2>Generate world</h2>
+      <div class="row">
+        <label>Width
+          <input type="number" id="width" min="1" max="<%= maxSide %>" value="12" required>
+        </label>
+        <span class="times">×</span>
+        <label>Height
+          <input type="number" id="height" min="1" max="<%= maxSide %>" value="8" placeholder="1D">
+        </label>
+      </div>
+      <p class="hint">Max <%= maxSide %> per side. Leave height empty for a 1D "string" world.</p>
+      <button type="submit">Generate</button>
+      <p class="error" id="worldError"></p>
+    </form>
+
+    <section class="panel" id="infoPanel">
+      <h2>Room info</h2>
+      <dl id="roomInfo">
+        <dt>ID</dt><dd id="infoId">–</dd>
+        <dt>Name</dt><dd id="infoName">Hover a room</dd>
+        <dt>Exits</dt><dd id="infoExits">–</dd>
+      </dl>
+    </section>
+
+    <form id="pathForm" class="panel">
+      <h2>Find path (BFS1)</h2>
+      <div class="row">
+        <label>Start
+          <input type="number" id="start" min="0" required>
+        </label>
+        <span class="times">→</span>
+        <label>Goal
+          <input type="number" id="goal" min="0" required>
+        </label>
+      </div>
+      <p class="hint">Or click a room to set start, then another to set goal.</p>
+      <div class="row buttons">
+        <button type="submit">Find path</button>
+        <button type="button" id="clearPath" class="secondary">Clear</button>
+      </div>
+      <p class="error" id="pathError"></p>
+      <div id="pathResult" class="result"></div>
+    </form>
+
+    <section class="legend">
+      <span><i class="sw sw-start"></i>Start</span>
+      <span><i class="sw sw-goal"></i>Goal</span>
+      <span><i class="sw sw-path"></i>Path</span>
+      <span><i class="sw sw-exit"></i>Exit</span>
+    </section>
+  </aside>
+
+  <main class="stage" id="stage">
+    <div class="grid-wrap" id="gridWrap">
+      <div class="grid" id="grid"></div>
+      <svg class="overlay" id="overlay" preserveAspectRatio="none"></svg>
+    </div>
+  </main>
+
+  <script src="/app.js"></script>
+</body>
+</html>

@@ -136,7 +136,7 @@ export class World {
 // let world1 = new World([5]);
 // world1.printRooms();
 
-let world2 = new World([100, 100]);
+// let world2 = new World([100, 100]);
 // world2.printRooms();
 // console.log(world2.roomWithID(1));
-console.log(world2.BFS1(0, 100*100-1));
+// console.log(world2.BFS1(0, 100*100-1));

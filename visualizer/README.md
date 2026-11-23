@@ -36,7 +36,11 @@ its heuristic.
 
 ## Notes
 
-- The server checks input before calling `BFS1`: IDs must exist, start equal to goal returns
-  just that room (BFS1 would loop forever on it), and worlds are limited to 100×100.
+- The server checks input before calling `BFS1`: IDs must exist, and start equal to goal returns
+  just that room (BFS1 would loop forever on it).
+- Worlds can be up to 1000×1000. Worlds over 40,000 rooms are drawn on a canvas, and the
+  hover info for those is fetched from the server one room at a time.
+- Path finding runs in a worker thread (`pathWorker.js`) so the server stays responsive. A search
+  is stopped after 30 s. BFS1 gets slow on big worlds (roughly O(n²)), so use A\* there.
 - The only change to the original code is that the test lines at the bottom of `worlds.js`
   are commented out, so they don't run when the server imports the file.

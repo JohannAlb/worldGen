@@ -53,7 +53,7 @@
           <input type="number" id="goal" min="0" required>
         </label>
       </div>
-      <p class="hint">Or click a room to set start, then another to set goal.</p>
+      <p class="hint">Or click a room to set start, then another to set goal. BFS1 gets slow on big worlds and is stopped after 30 s.</p>
       <div class="row buttons">
         <button type="submit">Find path</button>
         <button type="button" id="clearPath" class="secondary">Clear</button>
@@ -73,6 +73,7 @@
   <main class="stage" id="stage">
     <div class="grid-wrap" id="gridWrap">
       <div class="grid" id="grid"></div>
+      <canvas class="canvas" id="canvas" hidden></canvas>
       <svg class="overlay" id="overlay" preserveAspectRatio="none"></svg>
     </div>
   </main>

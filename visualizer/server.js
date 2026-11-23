@@ -3,6 +3,7 @@ import express from "express";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { World } from "../worlds.js";
+import { aStar } from "./astar.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PORT = process.env.PORT || 3000;
@@ -15,8 +16,10 @@ app.set("views", path.join(__dirname, "views"));
 app.use(express.static(path.join(__dirname, "public")));
 app.use(express.json());
 
-// Generated worlds kept in memory so BFS1 runs on the exact same world that is drawn.
+// Generated worlds kept in memory so path finding runs on the exact same world that is drawn.
+// Stored as { world, width } so A* knows the grid width for its heuristic.
 const worlds = new Map();
+const ALGORITHMS = ["bfs", "astar"];
 
 function parseSide(value) {
   const n = Number(value);
@@ -39,7 +42,7 @@ app.post("/api/world", (req, res) => {
   // 1 dimension -> "string world", 2 dimensions -> 2D grid world
   const world = new World(hasHeight ? [width, height] : [width]);
 
-  worlds.set(world.id, world);
+  worlds.set(world.id, { world, width });
   if (worlds.size > MAX_STORED_WORLDS) {
     worlds.delete(worlds.keys().next().value); // drop the oldest
   }
@@ -55,9 +58,16 @@ app.post("/api/world", (req, res) => {
 });
 
 app.get("/api/world/:id/path", (req, res) => {
-  const world = worlds.get(Number(req.params.id));
-  if (!world) {
+  const entry = worlds.get(Number(req.params.id));
+  if (!entry) {
     return res.status(404).json({ error: "World not found (it may have expired). Generate a new one." });
+  }
+
+  const { world, width } = entry;
+
+  const algo = req.query.algo ?? "bfs";
+  if (!ALGORITHMS.includes(algo)) {
+    return res.status(400).json({ error: `Unknown algorithm "${algo}". Use bfs or astar.` });
   }
 
   const start = Number(req.query.start);
@@ -70,14 +80,18 @@ app.get("/api/world/:id/path", (req, res) => {
 
   // BFS1 never finishes when start === goal, so answer that case here.
   if (start === goal) {
-    return res.json({ path: [start], ms: 0, note: "Start and goal are the same room." });
+    return res.json({ path: [start], ms: 0, algo, note: "Start and goal are the same room." });
   }
 
   const t0 = performance.now();
-  const result = world.BFS1(start, goal);
+  if (algo === "astar") {
+    const { path, expanded } = aStar(world, start, goal, width);
+    const ms = performance.now() - t0;
+    return res.json({ path, ms, algo, expanded });
+  }
+  const path = world.BFS1(start, goal);
   const ms = performance.now() - t0;
-
-  res.json({ path: result, ms });
+  res.json({ path, ms, algo });
 });
 
 app.listen(PORT, () => {

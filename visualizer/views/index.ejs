@@ -39,7 +39,11 @@
     </section>
 
     <form id="pathForm" class="panel">
-      <h2>Find path (BFS1)</h2>
+      <h2>Find path</h2>
+      <div class="toggle" role="radiogroup" aria-label="Algorithm">
+        <label><input type="radio" name="algo" value="bfs" checked><span>BFS1</span></label>
+        <label><input type="radio" name="algo" value="astar"><span>A*</span></label>
+      </div>
       <div class="row">
         <label>Start
           <input type="number" id="start" min="0" required>

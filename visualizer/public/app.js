@@ -151,6 +151,16 @@ $("pathForm").addEventListener("submit", (e) => {
   findPath();
 });
 
+// Switching algorithm re-runs the search when start and goal are set.
+for (const radio of document.querySelectorAll('input[name="algo"]')) {
+  radio.addEventListener("change", () => {
+    if (world && $("start").value !== "" && $("goal").value !== "") findPath();
+  });
+}
+
+const ALGO_NAMES = { bfs: "BFS1", astar: "A*" };
+const selectedAlgo = () => document.querySelector('input[name="algo"]:checked').value;
+
 $("clearPath").addEventListener("click", () => {
   $("start").value = "";
   $("goal").value = "";
@@ -177,7 +187,8 @@ async function findPath() {
   $("pathResult").textContent = "Searching…";
 
   try {
-    const res = await fetch(`/api/world/${world.id}/path?start=${encodeURIComponent(start)}&goal=${encodeURIComponent(goal)}`);
+    const params = new URLSearchParams({ start, goal, algo: selectedAlgo() });
+    const res = await fetch(`/api/world/${world.id}/path?${params}`);
     const data = await res.json();
     if (!res.ok) throw new Error(data.error);
     drawPath(data);
@@ -187,12 +198,12 @@ async function findPath() {
   }
 }
 
-function drawPath({ path, ms, note }) {
+function drawPath({ path, ms, algo, expanded, note }) {
   const result = $("pathResult");
   result.replaceChildren();
 
   if (!path) {
-    result.textContent = "BFS1 returned no path.";
+    result.textContent = `${ALGO_NAMES[algo]} returned no path.`;
     return;
   }
 
@@ -204,7 +215,8 @@ function drawPath({ path, ms, note }) {
   overlay.replaceChildren(line);
 
   const summary = document.createElement("div");
-  summary.textContent = `${path.length} rooms, ${path.length - 1} steps · ${ms.toFixed(1)} ms`;
+  summary.textContent = `${ALGO_NAMES[algo]} · ${path.length} rooms, ${path.length - 1} steps · ${ms.toFixed(1)} ms`
+    + (expanded !== undefined ? ` · ${expanded} rooms expanded` : "");
   const ids = document.createElement("div");
   ids.className = "ids";
   ids.textContent = path.join(" → ");

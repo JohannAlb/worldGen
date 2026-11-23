@@ -22,8 +22,17 @@ Then open http://localhost:3000.
 - Enter a width and height and generate a world. Leave height empty for a 1D "string" world.
   The grid is scaled to fit the screen.
 - Hover a room to see its ID, name and exits. Its exits light up in blue.
-- Type a start and goal ID, or click two rooms, to run `BFS1`. The path is shown as red rooms
+- Type a start and goal ID, or click two rooms, to find a path. The path is shown as red rooms
   with a red line through them, together with the step count and the run time.
+- Use the **BFS1 / A\*** toggle to pick the algorithm. Switching it re-runs the search, so the
+  two are easy to compare. A\* also reports how many rooms it expanded.
+
+## A\*
+
+`astar.js` is an A\* implementation written by AI for the visualizer, kept separate from my
+code. It reads the world through `world.roomWithID()` and each room's `exits`, with nothing
+precomputed, and uses the Manhattan distance (worked out from the room ID and grid width) as
+its heuristic.
 
 ## Notes
 

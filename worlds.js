@@ -19,15 +19,17 @@ export class World {
     this.roomCounter = 0;
     this.roomArray = [];
 
-    switch (sizeArray.length) {
-      case 1:
-        this.addRoomsStringWorld(sizeArray[0]);
-        break;
-      case 2:
-        this.addRooms2DWorld(sizeArray[0], sizeArray[1]);
-        break;
-      default:
-        console.log("invalid dimensions amount: " + sizeArray.length);
+    if (sizeArray) {
+      switch (sizeArray.length) {
+        case 1:
+          this.addRoomsStringWorld(sizeArray[0]);
+          break;
+        case 2:
+          this.addRooms2DWorld(sizeArray[0], sizeArray[1]);
+          break;
+        default:
+          console.log("invalid dimensions amount: " + sizeArray.length);
+      }
     }
   }
 
@@ -69,6 +71,98 @@ export class World {
     }
   }
 
+  generateTreeWorld(depth) {
+    let totalNodes = 2 ** (depth + 1) - 1;
+    let numberArray = [];
+    for (let i = 1; i <= totalNodes; i++) {
+      numberArray.push(i);
+    }
+    const randomIndexOfAnArrayWithAllNumbersUpTillTotalAmountOfNodesExceptTheAlreadyDistrubtedOnesButDifferent =
+      Math.floor(Math.random() * numberArray.length);
+
+    this.roomArray.push(
+      new Room(
+        this.roomCounter++,
+        numberArray[
+          randomIndexOfAnArrayWithAllNumbersUpTillTotalAmountOfNodesExceptTheAlreadyDistrubtedOnesButDifferent
+        ],
+      ),
+    );
+
+    numberArray.splice(
+      randomIndexOfAnArrayWithAllNumbersUpTillTotalAmountOfNodesExceptTheAlreadyDistrubtedOnesButDifferent,
+      1,
+    );
+
+    for (let i = 0; i < depth; i++) {
+      console.log("running depth level: ", i + 1);
+      this.roomArray.forEach((node) => {
+        if (node.exits.length <= 1) {
+          const n = 2; // cahnge to random for random tree
+          for (let j = 0; j < n; j++) {
+            const randomIndexOfAnArrayWithAllNumbersUpTillTotalAmountOfNodesExceptTheAlreadyDistrubtedOnes =
+              Math.floor(Math.random() * numberArray.length);
+
+            const tempRoom = new Room(
+              this.roomCounter++,
+              numberArray[
+                randomIndexOfAnArrayWithAllNumbersUpTillTotalAmountOfNodesExceptTheAlreadyDistrubtedOnes
+              ],
+            ); // change data to random ditribution
+            node.exits.push(tempRoom.id);
+            this.roomArray.push(tempRoom);
+
+            numberArray.splice(
+              randomIndexOfAnArrayWithAllNumbersUpTillTotalAmountOfNodesExceptTheAlreadyDistrubtedOnes,
+              1,
+            );
+          }
+        }
+      });
+    }
+  }
+
+  ASortingAlgorithmThatFindsANodeWithASpecificValueUsingBreadthFirstSearch(
+    goal,
+  ) {
+    let pathArray = [[0]];
+    let done = false;
+    let solution = null;
+
+    if (this.roomWithID(0).name == goal) {
+      return [0];
+    }
+
+    while (!done) {
+      const currValidPathLength = pathArray.at(-1).length; // legth of valid paths
+      pathArray.forEach((path) => {
+        if (path.length == currValidPathLength) {
+          this.roomWithID(path.at(-1)).exits.forEach((exit) => {
+            const currPath = [...path, exit];
+            if (this.roomWithID(exit).name == goal) {
+              solution = currPath;
+              done = true;
+            }
+            pathArray.push(currPath);
+          });
+        } else {
+          // ill just ahve a memory leak, its fine
+        }
+      });
+    }
+
+    return solution;
+  }
+
+  ASortingAlgorithmThatFindsANodeWithASpecificValueUsingDepthFirstSearch() {
+    let unexplored = [0]
+    while (unexplored.length > 0) {
+      this.roomWithID(unexplored[0]).exits.forEach((exit) => {
+        unexplored.push(exit) // i need to path
+      })
+    }
+  }
+
   printRooms() {
     console.log('\n=== Printing Contents of World: "' + this.name + '" ===');
     for (let i = 0; i < this.roomArray.length; i++) {
@@ -102,7 +196,7 @@ export class World {
           this.roomWithID(path.at(-1)).exits.forEach((exit) => {
             const currPath = [...path, exit];
             if (exit == goalID) {
-              solution = currPath
+              solution = currPath;
               done = true;
             }
             // for each last entry in every path
@@ -136,7 +230,17 @@ export class World {
 // let world1 = new World([5]);
 // world1.printRooms();
 
-// let world2 = new World([100, 100]);
+// let world2 = new World([10, 10]);
 // world2.printRooms();
 // console.log(world2.roomWithID(1));
-// console.log(world2.BFS1(0, 100*100-1));
+// console.log(world2.BFS1(0, 10*10-1));
+
+let treeword = new World();
+treeword.generateTreeWorld(15);
+// treeword.printRooms();
+console.log(
+  "path to goal: ",
+  treeword.ASortingAlgorithmThatFindsANodeWithASpecificValueUsingBreadthFirstSearch(
+    1,
+  ),
+);
